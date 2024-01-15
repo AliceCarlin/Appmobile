@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, Button } from 'react-native';
+import { FavoritesContext } from '../providers/FavoritesProvider';
 
 const DetailsScreen = ({ route }) => {
   const { monsterUrl } = route.params;
   const [monsterDetails, setMonsterDetails] = useState(null);
+  const { favorites, addFavorite, removeFavorite } = useContext(FavoritesContext);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const fetchMonsterDetails = async () => {
       try {
-        const response = await fetch(`https://www.dnd5eapi.co${monsterUrl}`);
+        const response = await fetch(`https://www.dnd5eapi.co/api/monsters/${monsterUrl}`);
         const data = await response.json();
         setMonsterDetails(data);
       } catch (error) {
@@ -19,6 +22,19 @@ const DetailsScreen = ({ route }) => {
     fetchMonsterDetails();
   }, [monsterUrl]);
 
+  useEffect(() => {
+    // Check if the monster is in favorites
+    setIsFavorite(favorites.some((favMonster) => favMonster.url === monsterDetails?.url));
+  }, [favorites, monsterDetails]);
+
+  const handleFavoritePress = () => {
+    if (isFavorite) {
+      removeFavorite(monsterDetails);
+    } else {
+      addFavorite(monsterDetails);
+    }
+  };
+
   if (!monsterDetails) {
     return (
       <View style={styles.container}>
@@ -27,13 +43,24 @@ const DetailsScreen = ({ route }) => {
     );
   }
 
+  // Prepend the base URL to the relative image path
+  const imageUrl = `https://www.dnd5eapi.co${monsterDetails.image}`;
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.monsterName}>{monsterDetails.name}</Text>
-      <Image
-        source={{ uri: `https://www.dnd5eapi.co${monsterDetails.image}` }}
-        style={styles.monsterImage}
+      {monsterDetails.image && (
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.monsterImage}
+        />
+      )}
+
+      <Button
+        title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+        onPress={handleFavoritePress}
       />
+
       <View style={styles.detailsContainer}>
         <Text>Size: {monsterDetails.size}</Text>
         <Text>Type: {monsterDetails.type}</Text>
@@ -42,6 +69,7 @@ const DetailsScreen = ({ route }) => {
         <Text>Hit Points: {monsterDetails.hit_points}</Text>
         {/* Add more details as needed */}
       </View>
+
     </ScrollView>
   );
 };

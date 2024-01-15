@@ -6,16 +6,26 @@ const InfoScreen = () => {
   const navigation = useNavigation();
 
   const handleMonsterPress = (monsterUrl) => {
-    navigation.navigate('Details', { monsterUrl });
+    navigation.navigate('DetailsScreen', { monsterUrl });
   };
 
-  const renderMonsterItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleMonsterPress(item.url)}>
-      <View style={styles.monsterContainer}>
+  const renderMonsterItem = ({ item, index }) => {
+    const isOdd = index % 2 === 1;
+  
+    const containerWidth = monsters.reduce((maxWidth, monster) => {
+      const nameWidth = monster.name.length * 7;
+      return nameWidth > maxWidth ? nameWidth : maxWidth;
+    }, 0);
+  
+    return (
+      <TouchableOpacity
+        style={[styles.monsterContainer, isOdd ? styles.odd : styles.even, { width: containerWidth }]}
+        onPress={() => handleMonsterPress(item.index)}
+      >
         <Text style={styles.monsterName}>{item.name}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const [monsters, setMonsters] = useState([]);
   const [page, setPage] = useState(1);
@@ -76,7 +86,8 @@ const InfoScreen = () => {
           renderItem={renderMonsterItem}
           keyExtractor={(item) => item.index}
           onEndReached={handleEndReached}
-          onEndReachedThreshold={0.1}
+          showsVerticalScrollIndicator = {false}
+          onEndReachedThreshold={0.5}
           key={2}
           numColumns={2} // Add this line to display two columns
         />
@@ -93,13 +104,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
+    paddingHorizontal: 8,
   },
   monsterContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     margin: 8,
-    padding: 21,
+    padding: 16,
     borderRadius: 10,
     backgroundColor: '#333',
     shadowColor: '#000',
