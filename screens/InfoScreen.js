@@ -6,7 +6,7 @@ const InfoScreen = () => {
   const navigation = useNavigation();
 
   const handleMonsterPress = (monsterUrl) => {
-    navigation.navigate('DetailsScreen', { monsterUrl });
+    navigation.navigate('DetailsScreen', { monsterUrl, sourceScreen: 'Info' });
   };
 
   const renderMonsterItem = ({ item, index }) => {
@@ -76,7 +76,7 @@ const InfoScreen = () => {
 
   useEffect(() => {
     fetchMonsters();
-  }, []); // Initial fetch
+  }, []); // fetch initial 
 
   return (
     <View style={styles.container}>
@@ -89,7 +89,7 @@ const InfoScreen = () => {
           showsVerticalScrollIndicator = {false}
           onEndReachedThreshold={0.5}
           key={2}
-          numColumns={2} // Add this line to display two columns
+          numColumns={2}
         />
       ) : (
         <Text>Loading...</Text>

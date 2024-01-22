@@ -17,7 +17,10 @@ const InfoStack = () => {
       <Stack.Screen
         name="DetailsScreen"
         component={DetailsScreen}
-        options={{ headerShown: false }}
+        options={({ route }) => ({
+          headerShown: false,
+          key: `DetailsScreen-${route.params.monsterUrl}`,
+        })}
       />
     </Stack.Navigator>
   );

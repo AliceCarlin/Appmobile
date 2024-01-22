@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, Button } from 'react-native';
 import { FavoritesContext } from '../providers/FavoritesProvider';
 
-const DetailsScreen = ({ route }) => {
+const DetailsScreen = ({ route, navigation }) => {
   const { monsterUrl } = route.params;
   const [monsterDetails, setMonsterDetails] = useState(null);
   const { favorites, addFavorite, removeFavorite } = useContext(FavoritesContext);
@@ -33,6 +33,14 @@ const DetailsScreen = ({ route }) => {
     } else {
       addFavorite(monsterDetails);
     }
+
+    const sourceScreen = route.params.sourceScreen;
+    if (sourceScreen === 'Favorites') {
+      navigation.navigate('Favorites');
+    } else {
+      navigation.navigate('InfoScreen');
+    }
+
   };
 
   if (!monsterDetails) {
@@ -43,7 +51,6 @@ const DetailsScreen = ({ route }) => {
     );
   }
 
-  // Prepend the base URL to the relative image path
   const imageUrl = `https://www.dnd5eapi.co${monsterDetails.image}`;
 
   return (
@@ -67,7 +74,6 @@ const DetailsScreen = ({ route }) => {
         <Text>Alignment: {monsterDetails.alignment}</Text>
         <Text>Armor Class: {monsterDetails.armor_class[0].value}</Text>
         <Text>Hit Points: {monsterDetails.hit_points}</Text>
-        {/* Add more details as needed */}
       </View>
 
     </ScrollView>

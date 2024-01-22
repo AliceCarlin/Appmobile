@@ -1,19 +1,22 @@
 import React, { useContext } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { FavoritesContext } from '../providers/FavoritesProvider';
 
-const FavoritesScreen = () => {
+const FavoritesScreen = ({ navigation }) => {
   const { favorites } = useContext(FavoritesContext);
 
-  // Render each favorite monster
   const renderFavoriteItem = ({ item }) => (
-    <View style={styles.favoriteItem}>
+    <TouchableOpacity
+      style={styles.favoriteItem}
+      onPress={() => handleFavoritePress(item.url)}
+    >
       <Text>{item.name}</Text>
-      <Text>Size: {item.size}</Text>
-      {/* Add more details as needed */}
-      <Text>Remove from Favorites</Text>
-    </View>
+    </TouchableOpacity>
   );
+
+  const handleFavoritePress = (monsterUrl) => {
+    navigation.navigate('DetailsScreen', { monsterUrl: monsterUrl.split('/').pop(), sourceScreen: 'Favorites' });
+  };
 
   return (
     <View style={styles.container}>
