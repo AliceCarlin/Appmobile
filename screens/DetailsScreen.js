@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Button } from 'react-native';
+import { View, Text, Image, StyleSheet, Button, FlatList } from 'react-native';
 import { FavoritesContext } from '../providers/FavoritesProvider';
 
 const DetailsScreen = ({ route, navigation }) => {
@@ -23,7 +23,6 @@ const DetailsScreen = ({ route, navigation }) => {
   }, [monsterUrl]);
 
   useEffect(() => {
-    // Check if the monster is in favorites
     setIsFavorite(favorites.some((favMonster) => favMonster.url === monsterDetails?.url));
   }, [favorites, monsterDetails]);
 
@@ -40,7 +39,6 @@ const DetailsScreen = ({ route, navigation }) => {
     } else {
       navigation.navigate('InfoScreen');
     }
-
   };
 
   if (!monsterDetails) {
@@ -54,29 +52,61 @@ const DetailsScreen = ({ route, navigation }) => {
   const imageUrl = `https://www.dnd5eapi.co${monsterDetails.image}`;
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.monsterName}>{monsterDetails.name}</Text>
-      {monsterDetails.image && (
-        <Image
-          source={{ uri: imageUrl }}
-          style={styles.monsterImage}
-        />
-      )}
+    <FlatList
+      style={styles.container}
+      ListHeaderComponent={
+        <>
+          <Text style={styles.monsterName}>{monsterDetails.name}</Text>
+          {monsterDetails.image && (
+            <Image source={{ uri: imageUrl }} style={styles.monsterImage} />
+          )}
+          <Button
+            title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+            onPress={handleFavoritePress}
+          />
+        </>
+      }
+      data={[]}
+      keyExtractor={() => 'dummy-key'}
+      renderItem={null} 
+      ListFooterComponent={
+        <View style={styles.detailsContainer}>
+          <Text>Size: {monsterDetails.size}</Text>
+          <Text>Type: {monsterDetails.type}</Text>
+          <Text>Alignment: {monsterDetails.alignment}</Text>
+          <Text>Armor Class: {monsterDetails.armor_class[0].value}</Text>
+          <Text>Hit Points: {monsterDetails.hit_points}</Text>
 
-      <Button
-        title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-        onPress={handleFavoritePress}
-      />
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionHeader}>Abilities</Text>
+            <FlatList
+              data={monsterDetails.special_abilities}
+              keyExtractor={(item) => item.name}
+              renderItem={({ item }) => (
+                <View style={styles.abilityContainer}>
+                  <Text style={styles.abilityName}>{item.name}</Text>
+                  <Text>{item.desc}</Text>
+                </View>
+              )}
+            />
+          </View>
 
-      <View style={styles.detailsContainer}>
-        <Text>Size: {monsterDetails.size}</Text>
-        <Text>Type: {monsterDetails.type}</Text>
-        <Text>Alignment: {monsterDetails.alignment}</Text>
-        <Text>Armor Class: {monsterDetails.armor_class[0].value}</Text>
-        <Text>Hit Points: {monsterDetails.hit_points}</Text>
-      </View>
-
-    </ScrollView>
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionHeader}>Actions</Text>
+            <FlatList
+              data={monsterDetails.actions}
+              keyExtractor={(item) => item.name}
+              renderItem={({ item }) => (
+                <View style={styles.actionContainer}>
+                  <Text style={styles.actionName}>{item.name}</Text>
+                  <Text>{item.desc}</Text>
+                </View>
+              )}
+            />
+          </View>
+        </View>
+      }
+    />
   );
 };
 
@@ -98,6 +128,25 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     padding: 20,
+  },
+  sectionContainer: {
+    marginTop: 10,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  abilityContainer: {
+    marginTop: 5,
+  },
+  abilityName: {
+    fontWeight: 'bold',
+  },
+  actionContainer: {
+    marginTop: 10,
+  },
+  actionName: {
+    fontWeight: 'bold',
   },
 });
 
